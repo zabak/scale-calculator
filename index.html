@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8">
+    <title>Výpočet měřítka</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://openlayers.org/en/v4.4.2/css/ol.css" type="text/css">
+    <link rel="stylesheet" href="./index.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
+    <script src="https://openlayers.org/en/v4.4.2/build/ol.js"></script>
+    <script src="./systems.js"></script>
+  </head>
+  <body>
+    <div class="container-fluid application-content">
+      <div class="row text-center">
+        <h1>Výpočet měřítka</h1>
+      </div>
+      <div class="row form-inline text-center">
+        <input id="input-value-mm" type="text" class="form-control" value="10">
+        <span>mm na mape je</span>
+        <input id="input-value-unit" type="text" class="form-control" value="1">
+        <select id="input-system" class="form-control"></select>
+        <select id="input-unit" class="form-control"></select>
+        <span>v skutočnosti</span>
+      </div>
+      <div class="row text-center"><span id="output"><span id="output-prefix">1:</span><span id="output-value"></span></span></div>
+    </div>
+    <div id="map" class="map map-content"></div>
+
+    <script src="./map.js"></script>
+    <script>
+
+      var lang = 'cs';
+
+      var valueMmInput = $('#input-value-mm');
+      var valueUnitInput = $('#input-value-unit');
+      var systemInput = $('#input-system');
+      var unitInput = $('#input-unit');
+      var valueOutput = $('#output-value');
+
+      valueMmInput.on('keyup', function() {
+        updateOutput();
+      });
+
+      valueUnitInput.on('keyup', function() {
+        updateOutput();
+      });
+
+      systemInput.on('change', function() {
+        updateUnits(systemInput.val());
+        updateOutput();
+      });
+
+      unitInput.on('change', function() {
+        updateOutput();
+      });
+
+      $('#output-prefix').on('click', function(e) {
+        select(e.target.parentElement);
+      });
+
+      $('#output-value').on('click', function(e) {
+        select(e.target);
+      });
+
+      function select(element) {
+        var range = document.createRange();
+        range.selectNodeContents(element);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+
+        try {
+          document.execCommand('copy');
+        } catch (err) {
+        }
+      };
+
+      for (var systemName in systems) {
+
+        systemInput.append($('<option>', {
+          value: systemName,
+          text : systemName
+        }));
+
+        updateUnits(systemName);
+      }
+
+      updateOutput();
+
+      function updateOutput() {
+        var ratio = parseFloat(unitInput.val());
+        var inputMm = parseFloat(valueMmInput.val().replace(',', '.'));
+        var inputUnit = parseFloat(valueUnitInput.val().replace(',', '.'));
+
+        if (inputMm === NaN || inputUnit === NaN) {
+          valueOutput.empty();
+        } else {
+          var value = Math.round(inputUnit * ratio / inputMm);
+          valueOutput.empty().append(value);
+        }
+      }
+
+      function updateUnits(systemName) {
+        var system = systems[systemName];
+        unitInput.empty();
+        system.forEach(function(unit) {
+          unitInput.append($('<option>', {
+            value: unit.value,
+            text : unit.name[lang]
+          }));
+        });
+      }
+
+    </script>
+  </body>
+</html>
