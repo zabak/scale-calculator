@@ -12,6 +12,19 @@
   right: 0;
   bottom: 0;
 }
+.languages {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 15px;
+}
+.languages .btn {
+  padding: 0;
+  padding-left: 4px;
+}
+.languages .btn.disabled {
+  opacity: 0.2;
+}
 #output {
   display: inline-block;
   margin: 10px;
